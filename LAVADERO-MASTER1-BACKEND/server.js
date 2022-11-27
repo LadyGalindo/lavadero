@@ -83,7 +83,19 @@ router.post('/createUser',  (req , res) => { //1.sycn antes del req
 })
 
 //Leer Usuario - Read -R
+router.get('/getAllUsers', (req, res)=>{
+    User.find({}, function (err, userDocs){
+        if(err){
+            res.status(500).send({message: 'Error del servidor: ' + err})
+        }else if(!userDocs){
+            res.status(404).send({message: 'Colección sin documentos'})
+        }else{
+            res.status(200).send({userDocs})
+        }
+    });
+})
 //Editar Usuario - Update - U
+
 //Eliminar Usuario - Delete - D
 
 // por medio de la cost app activamos la escucha de nuestro server 
