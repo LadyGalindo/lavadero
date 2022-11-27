@@ -1,5 +1,6 @@
 console.log("Hola Server, Grupo EGDA");
 
+const { default: userEvent } = require('@testing-library/user-event');
 // crear una const de tipo express que manejar los hilos de nuestro archivo server.js
 const express = require('express')
 const app = express();
@@ -33,33 +34,54 @@ const User = require('./models/UserModel')
 
 //Operaciones CRUD........ ToDo
 //Crear usuario - Create - create EndPoint - C
-router.post('/createUse', (req , res) => {
+router.post('/createUser',  (req , res) => { //1.sycn antes del req
     //desestructuramos el Body
-    // const { body}=req --es una forma
+    const { body } = req //es una forma
 
     const newUser = new User({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        email: req.body.email,
-        password: req.body.password
+        firstname: body.firstname,
+        lastname:  body.lastname,
+        // en el email vamos a hacer una validación 
+        email:     body.email.toLowerCase(),
+        password:  body.password
 
     })
-    //guardar el usuario creado
-    res.send(
-        {
-            message: 'Usuario creado con exito',
-            user: newUser
+
+    // 1. otra opción opcion con async y await  
+    /* const result = await newUser.save();
+    console.log(result)
+ */
+     //2. guardar el usuario creado, con parametro tipo promesa
+     // Es lo mismo que el codigo de abajo
+    /*  newUser.save()
+     .then((result)=>res.send({message: 'Usuario guardado con exito', resp: result}))
+     .catch((err) => res.send({message:err }) )*/
+
+    //  3. guardando un usuario con el formato undefined
+    // newUser.save()
+
+    User.findOne({ email: newUser.email}, (err, userFinded) =>{
+        if (userFinded) {
+            res.send({ message: 'El usuario ya existe '})
+        }else{
+                //4. guardar el usuario creado, con parametro tipo callback
+            newUser.save((err, userStore )=>{
+            if (userStore) {
+                res.send ({
+                    message: 'Usuario Creado con exito',
+                } )
+                }
+                if (err) {
+                res.send({message: 'Error del Servidor'})
+            } 
+        }) 
         }
-    )
-
-    // por consola como respuesta
-    // res.send( newUser )
-
-    // console.log(req.body);
-    // res.send(req.body)
-    // res.send({message: 'EndPoint Create User On'})
-
+        if (err) {
+                res.send({message: 'Error del servidor'})
+            }
+    })
 })
+
 //Leer Usuario - Read -R
 //Editar Usuario - Update - U
 //Eliminar Usuario - Delete - D
