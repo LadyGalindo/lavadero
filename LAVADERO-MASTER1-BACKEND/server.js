@@ -97,6 +97,18 @@ router.get('/getAllUsers', (req, res)=>{
 //Editar Usuario - Update - U
 
 //Eliminar Usuario - Delete - D
+router.delete('/delete-user/:id', (req, res) => {
+    const idToDelete = req.params.id;
+    User.findByIdAndRemove({_id: idToDelete}, (err, userDeleted) => {
+        if(err){
+            res.send({message: 'Error del servidor: ' + err})
+        }else if(userDeleted){
+            res.send({message: 'Usuario eliminado con exito'})
+        }else{
+            res.send({message: 'Usuario no encontrado'})
+        }
+    })
+})
 
 // por medio de la cost app activamos la escucha de nuestro server 
 //Por medio de la const app activamos la escucha par
